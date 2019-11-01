@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/sqlite3_shell.dir/sqlite/shell.c.o  -o ../bin/sqlite3 -Wl,-rpath,/home/bs/learning/15445/cmu_15445_2018/build/lib ../lib/libsqlite3.so -lpthread -ldl 
