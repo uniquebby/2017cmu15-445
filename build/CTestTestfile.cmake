@@ -1,8 +1,8 @@
 # CMake generated Testfile for 
-# Source directory: /home/bs/learning/15445/cmu_15445_2018
-# Build directory: /home/bs/learning/15445/cmu_15445_2018/build
+# Source directory: /home/vagrant/learning/2017cmu15-445
+# Build directory: /home/vagrant/learning/2017cmu15-445/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
-subdirs("src")
-subdirs("test")
+SUBDIRS(src)
+SUBDIRS(test)

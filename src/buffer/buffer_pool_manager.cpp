@@ -62,9 +62,10 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
     free_list_->pop_front();
  } 
   else if (!replacer_->Victim(res)) return nullptr; 
-  else if (res->is_dirty_) {
+  else {
+  page_table_->Remove(res->page_id_);
+  if (res->is_dirty_) 
     FlushPage(res->page_id_);
-    page_table_->Remove(res->page_id_);
   }  
   res->WLatch();
   res->page_id_ = page_id;
@@ -163,9 +164,13 @@ Page *BufferPoolManager::NewPage(page_id_t &page_id) {
     free_list_->pop_front();
   } else {
     if (!replacer_->Victim(p)) return nullptr;
+    page_table_->Remove(p->page_id_);
+	if (p->is_dirty_) 
+      disk_manager_->WritePage(p->page_id_, p->data_);
   }
   p->WLatch();
   p->page_id_ = page_id;
+  p->pin_count_++;
   p->WUnlatch();
   //zero out memory.
   p->ResetMemory();

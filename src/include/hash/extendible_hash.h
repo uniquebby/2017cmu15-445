@@ -26,7 +26,7 @@ template <typename K, typename V>
 class ExtendibleHash : public HashTable<K, V> {
   struct bucket {
     bucket(int depth) : local_depth_(depth) {}
-    int local_depth_;
+    int local_depth_ = 0;
     std::mutex latch_;
     std::map<K, V> map_;
   };

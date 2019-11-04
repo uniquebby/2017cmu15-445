@@ -4,34 +4,38 @@
 
 
 # Configuration directories and files
-SourceDirectory: /home/bs/learning/15445/cmu_15445_2018
-BuildDirectory: /home/bs/learning/15445/cmu_15445_2018/build
+SourceDirectory: /home/vagrant/learning/2017cmu15-445
+BuildDirectory: /home/vagrant/learning/2017cmu15-445/build
 
 # Where to place the cost data store
 CostDataFile: 
 
 # Site is something like machine.domain, i.e. pragmatic.crd
-Site: 9527
+Site: development
 
 # Build name is osname-revision-compiler, i.e. Linux-2.4.2-2smp-c++
 BuildName: Linux-c++
 
-# Subprojects
-LabelsForSubprojects: 
-
 # Submission information
-SubmitURL: http://
+IsCDash: 
+CDashVersion: 
+QueryCDashVersion: 
+DropSite: 
+DropLocation: 
+DropSiteUser: 
+DropSitePassword: 
+DropSiteMode: 
+DropMethod: http
+TriggerSite: 
+ScpCommand: /usr/bin/scp
 
 # Dashboard start time
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/usr/bin/cmake" "/home/bs/learning/15445/cmu_15445_2018"
-MakeCommand: /usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}" -- -i
+ConfigureCommand: "/usr/bin/cmake" "/home/vagrant/learning/2017cmu15-445"
+MakeCommand: /usr/bin/make -i
 DefaultCTestConfigurationType: Release
-
-# version control
-UpdateVersionOnly: 
 
 # CVS options
 # Default is "-d -P -A"
@@ -39,22 +43,14 @@ CVSCommand: CVSCOMMAND-NOTFOUND
 CVSUpdateOptions: -d -A -P
 
 # Subversion options
-SVNCommand: /usr/bin/svn
+SVNCommand: SVNCOMMAND-NOTFOUND
 SVNOptions: 
 SVNUpdateOptions: 
 
 # Git options
 GITCommand: /usr/bin/git
-GITInitSubmodules: 
 GITUpdateOptions: 
 GITUpdateCustom: 
-
-# Perforce options
-P4Command: P4COMMAND-NOTFOUND
-P4Client: 
-P4Options: 
-P4UpdateOptions: 
-P4UpdateCustom: 
 
 # Generic update command
 UpdateCommand: /usr/bin/git
@@ -63,15 +59,12 @@ UpdateType: git
 
 # Compiler info
 Compiler: /usr/bin/c++
-CompilerVersion: 8.2.1
 
 # Dynamic analysis (MemCheck)
 PurifyCommand: 
 ValgrindCommand: 
 ValgrindCommandOptions: 
-MemoryCheckType: 
-MemoryCheckSanitizerOptions: 
-MemoryCheckCommand: /usr/bin/valgrind
+MemoryCheckCommand: MEMORYCHECK_COMMAND-NOTFOUND
 MemoryCheckCommandOptions: 
 MemoryCheckSuppressionFile: 
 
@@ -89,10 +82,6 @@ SlurmRunCommand: SLURM_SRUN_COMMAND-NOTFOUND
 # process will be summarily terminated.
 # Currently set to 25 minutes
 TimeOut: 1500
-
-# During parallel testing CTest will not start a new test if doing
-# so would cause the system load to exceed this value.
-TestLoad: 
 
 UseLaunchers: 
 CurlOptions: 

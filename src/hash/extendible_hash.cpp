@@ -1,5 +1,4 @@
 #include <list>
-
 #include <functional>
 
 #include "hash/extendible_hash.h"
@@ -18,7 +17,7 @@ ExtendibleHash<K, V>::ExtendibleHash(size_t size)
      item_size_(0),
      bucket_nums_(1),
      size_each_bucket_(size) {
-       buckets_.push_back(make_shared<bucket>(size));
+       buckets_.push_back(make_shared<bucket>(0));
      }
 
 /*
@@ -26,15 +25,11 @@ ExtendibleHash<K, V>::ExtendibleHash(size_t size)
  */
 template <typename K, typename V>
 size_t ExtendibleHash<K, V>::HashKey(const K &key) {
-  hash<K> hash_k;
-  auto res = hash_k(key);
-  return res;
+  return hash<K>{}(key);
 }
 template <typename K, typename V>
 size_t ExtendibleHash<K, V>::GetIdx(const K &key) {
-  auto res = HashKey(key);
-  res = (unsigned)res >> (32 - global_depth_);
-  return res;
+  return HashKey(key) & ((1 << global_depth_) - 1);
 }
 /*
  * helper function to return global depth of hash table
@@ -113,29 +108,31 @@ bool ExtendibleHash<K, V>::Remove(const K &key) {
 template <typename K, typename V>
 void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
   auto index = GetIdx(key); 
-  if (index > buckets_.size()) return;
   auto bucket_ptr = buckets_[index];
 
   lock_guard<mutex> lock1(latch_);
   lock_guard<mutex> lock(bucket_ptr->latch_);
   
   //if the bucket is not full, just insert 
-  if (bucket_ptr->map_.size() < size_each_bucket_) {
+  if (bucket_ptr->map_.find(key) != bucket_ptr->map_.end() ||
+      bucket_ptr->map_.size() < size_each_bucket_) {
     bucket_ptr->map_[key] = value;
     return;
   }
   //if the bucket is full, rebuilt it.
   while (bucket_ptr->map_.size() >= size_each_bucket_) {
-    for (auto i = 0; i < static_cast<int>(buckets_.size()); ++i) {
-      buckets_.push_back(buckets_[i]);
       //adjust global and local depth.
       bucket_ptr->local_depth_++;
-      if (bucket_ptr->local_depth_ > global_depth_)
+      if (bucket_ptr->local_depth_ > global_depth_) {
+	    size_t size = buckets_.size();
+        for (size_t i = 0; i < size; ++i) 
+          buckets_.push_back(buckets_[i]);
         global_depth_++;
+	  }
       //new bucket.
       auto new_bkt_ptr = make_shared<bucket>(bucket_ptr->local_depth_);
       //move item
-      auto mask = 1 << (32 - bucket_ptr->local_depth_);
+      auto mask = 1 << (bucket_ptr->local_depth_ - 1);
       auto iter = bucket_ptr->map_.begin();
       while (iter != bucket_ptr->map_.end()) {
         //if the last effective bit is 1, move it to new bucket
@@ -147,8 +144,8 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
         }
       }
       //adjust ptr begining at new added ptr(the half)
-      for(auto i = buckets_.size()/2; i < buckets_.size(); ++i) {
-        if (buckets_[i] == bucket_ptr) buckets_[i] = new_bkt_ptr;
+      for(size_t i = 0; i < buckets_.size(); ++i) {
+        if (buckets_[i] == bucket_ptr && (i & mask)) buckets_[i] = new_bkt_ptr;
       }
       //insert item
       index = GetIdx(key); 
@@ -158,7 +155,6 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
         return;
       }
     }
-  }
 }
 
 template class ExtendibleHash<page_id_t, Page *>;
