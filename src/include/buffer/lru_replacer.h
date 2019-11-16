@@ -22,7 +22,7 @@ template <typename T> class LRUReplacer : public Replacer<T> {
     Node() = default;
     Node(const T &value) : value(value) {} 
     std::shared_ptr<Node> prev;
-    T                      value; 
+    T                     value; 
     std::shared_ptr<Node> next;
   };
 public:

@@ -157,6 +157,8 @@ vector
 /home/vagrant/learning/2017cmu15-445/test/hash/extendible_hash_test.cpp
 thread
 -
+random
+-
 hash/extendible_hash.h
 /home/vagrant/learning/2017cmu15-445/test/hash/hash/extendible_hash.h
 gtest/gtest.h

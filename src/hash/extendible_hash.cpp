@@ -131,6 +131,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	  }
       //new bucket.
       auto new_bkt_ptr = make_shared<bucket>(bucket_ptr->local_depth_);
+      bucket_nums_++;
       //move item
       auto mask = 1 << (bucket_ptr->local_depth_ - 1);
       auto iter = bucket_ptr->map_.begin();

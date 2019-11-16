@@ -54,24 +54,34 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
     res->pin_count_++;
     res->WUnlatch();
     replacer_->Erase(res);
+//    std::cout << "FetchPage: page_id=" << res->GetPageId() 
+//              << " pin_count= " << res->pin_count_ << std::endl;
     return res;
   }
   lock_guard<mutex> lck(latch_);
   if (!free_list_->empty()) {
     res = free_list_->front(); 
     free_list_->pop_front();
- } 
-  else if (!replacer_->Victim(res)) return nullptr; 
+  } 
+  else if (!replacer_->Victim(res)) {
+    std::cout << "victim: all page is pined" << std::endl;
+    return nullptr; 
+  }
   else {
-  page_table_->Remove(res->page_id_);
-  if (res->is_dirty_) 
-    FlushPage(res->page_id_);
+//    std::cout << "victim size  is +++++++++++++++++++++++++++++" << replacer_->Size() << std::endl;
+ //   std::cout << "victim page id is +++++++++++++++++++++++++++++" << res->GetPageId() << std::endl;
+    page_table_->Remove(res->page_id_);
+    if (res->is_dirty_) 
+      disk_manager_->WritePage(res->page_id_, res->data_);
   }  
   res->WLatch();
+  res->pin_count_ = 1;
   res->page_id_ = page_id;
   disk_manager_->ReadPage(page_id, res->data_);
   res->WUnlatch();
   page_table_->Insert(page_id, res);
+//  std::cout << "FetchPage: page_id=" << res->GetPageId() 
+ //           << " pin_count= " << res->pin_count_ << std::endl;
   return res;
 }
 
@@ -90,13 +100,17 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
     if (pin_count > 0) {
       p->WLatch();
       --p->pin_count_; 
-      p->is_dirty_ = is_dirty;
+	  if (is_dirty)
+        p->is_dirty_ = is_dirty;
       p->WUnlatch();
 
       p->RLatch();
       pin_count = p->pin_count_;
       p->RUnlatch();
-      if (pin_count == 0) replacer_->Insert(p);
+//      std::cout << "UnpinPage : " << "page_id = " << page_id << " id_dirty= "
+ //               << is_dirty << " pin_count=" << pin_count 
+//			    << " p->is_dirty_=" << p->is_dirty_ << std::endl;
+      if (pin_count <= 0) replacer_->Insert(p);
       return true;
     }
     return false;
@@ -164,6 +178,8 @@ Page *BufferPoolManager::NewPage(page_id_t &page_id) {
     free_list_->pop_front();
   } else {
     if (!replacer_->Victim(p)) return nullptr;
+//    std::cout << "victim size  is +++++++++++++++++++++++++++++" << replacer_->Size() << std::endl;
+//    std::cout << "victim page id is +++++++++++++++++++++++++++++" << p->GetPageId() << std::endl;
     page_table_->Remove(p->page_id_);
 	if (p->is_dirty_) 
       disk_manager_->WritePage(p->page_id_, p->data_);

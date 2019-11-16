@@ -1,0 +1,57 @@
+/**
+ * index_iterator.h
+ * For range scan of b+ tree
+ */
+#pragma once
+#include "page/b_plus_tree_item_page.h"
+
+namespace cmudb {
+
+#define INDEXITERATOR_TYPE                                                     \
+  IndexIterator<KeyType, ValueType, KeyComparator>
+
+INDEX_TEMPLATE_ARGUMENTS
+class IndexIterator {
+public:
+  // you may define your own constructor based on your member variables
+  IndexIterator();
+  ~IndexIterator();
+
+  bool isEnd() {
+    return item_ == nullptr;
+  }
+
+  const MappingType &operator*() {
+    return item_->GetItem(index_);
+  }
+
+  IndexIterator &operator++() {
+    if (index_ == item_->GetSize()-1) {
+	  auto next_page_id = item_->GetNextPageId();
+	  UnlockAndUnPin();
+	  if (next_page_id == INVALID_PAGE_ID) 
+	    item_ = nullptr;
+      else {
+	    auto page = buffer_pool_manger_->FetchPage(next_page_id);
+		page->RLatch();
+		item_ = reinterpret_cast<B_PLUS_TREE_PAGE_TYPE*>(page->GetData());
+		index_ = 0;
+	  }
+	} else 
+	    ++index_;
+	return *this;
+  }
+
+private:
+  // add your own private member variables here
+  int index_;
+  B_PLUS_TREE_LEAF_PAGE_TYPE *item_;
+  BufferPoolManager *buffer_pool_manager_;
+
+  void UnlockAndUnPin() {
+    buffer_pool_manager_->FetchPage(item_->GetPageId())->RUnlatch();   
+	buffer_pool_manager_->UnpinPage(item_->GetPageId(), false);
+  }
+};
+
+} // namespace cmudb

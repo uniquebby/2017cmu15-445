@@ -65,6 +65,7 @@ DiskManager::~DiskManager() {
  */
 void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
   size_t offset = page_id * PAGE_SIZE;
+//  LOG_DEBUG("page_id= %d, offset = %lu, file_size= %d",page_id, offset, GetFileSize(file_name_));
   // set write cursor to offset
   db_io_.seekp(offset);
   db_io_.write(page_data, PAGE_SIZE);
@@ -82,6 +83,8 @@ void DiskManager::WritePage(page_id_t page_id, const char *page_data) {
  */
 void DiskManager::ReadPage(page_id_t page_id, char *page_data) {
   int offset = page_id * PAGE_SIZE;
+//  std::cout << "ReadPage: file_name=" << file_name_ << std::endl;
+//  LOG_DEBUG("page_id= %d, offset = %d, file_size= %d",page_id, offset, GetFileSize(file_name_));
   // check if read beyond file length
   if (offset > GetFileSize(file_name_)) {
     LOG_DEBUG("I/O error while reading");

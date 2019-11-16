@@ -31,7 +31,7 @@ template <typename T> void LRUReplacer<T>::Insert(const T &value) {
     //pick this node out.
     cur_node_ptr->prev->next = cur_node_ptr->next;
     cur_node_ptr->next->prev = cur_node_ptr->prev;
- } else { //creat a new node.
+  } else { //creat a new node.
     cur_node_ptr = make_shared<Node>(value);
     map_[value] = cur_node_ptr;
   }

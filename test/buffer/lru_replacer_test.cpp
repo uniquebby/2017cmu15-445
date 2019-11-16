@@ -43,4 +43,58 @@ TEST(LRUReplacerTest, SampleTest) {
   EXPECT_EQ(1, value);
 }
 
+TEST(LRUReplacerTest, SampleTest1) {
+  LRUReplacer<int> lru_replacer;
+  int value;
+
+  EXPECT_EQ(false, lru_replacer.Victim(value));
+
+  lru_replacer.Insert(0);
+  EXPECT_EQ(1, lru_replacer.Size());
+  EXPECT_EQ(true, lru_replacer.Victim(value));
+  EXPECT_EQ(0, value);
+  EXPECT_EQ(false, lru_replacer.Victim(value));
+
+  EXPECT_EQ(false, lru_replacer.Erase(0));
+  EXPECT_EQ(0, lru_replacer.Size());
+
+  lru_replacer.Insert(1);
+  lru_replacer.Insert(1);
+  lru_replacer.Insert(2);
+  lru_replacer.Insert(2);
+  lru_replacer.Insert(1);
+  EXPECT_EQ(2, lru_replacer.Size());
+  EXPECT_EQ(true, lru_replacer.Victim(value));
+  EXPECT_EQ(2, value);
+
+}
+
+TEST(LRUReplacerTest, BasicTest) {
+  LRUReplacer<int> lru_replacer;
+
+  // push element into replacer
+  for (int i = 0; i < 100; ++i) {
+    lru_replacer.Insert(i);
+  }
+  EXPECT_EQ(100, lru_replacer.Size());
+
+  // reverse then insert again
+  for (int i = 0; i < 100; ++i) {
+    lru_replacer.Insert(99 - i);
+  }
+
+  // erase 50 element from the tail
+  for (int i = 0; i < 50; ++i) {
+    EXPECT_EQ(true, lru_replacer.Erase(i));
+  }
+
+  // check left
+  int value = -1;
+  for (int i = 99; i >= 50; --i) {
+    lru_replacer.Victim(value);
+    EXPECT_EQ(i, value);
+    value = -1;
+  }
+}
+
 } // namespace cmudb

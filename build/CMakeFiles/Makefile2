@@ -1078,8 +1078,8 @@ test/preinstall:
 
 # All Build rule for target.
 test/CMakeFiles/b_plus_tree_concurrent_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/b_plus_tree_concurrent_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/b_plus_tree_concurrent_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/b_plus_tree_concurrent_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_concurrent_test.dir/build.make test/CMakeFiles/b_plus_tree_concurrent_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_concurrent_test.dir/build.make test/CMakeFiles/b_plus_tree_concurrent_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  1
@@ -1111,8 +1111,8 @@ clean: test/CMakeFiles/b_plus_tree_concurrent_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/b_plus_tree_print_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/b_plus_tree_print_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/b_plus_tree_print_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/b_plus_tree_print_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_print_test.dir/build.make test/CMakeFiles/b_plus_tree_print_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_print_test.dir/build.make test/CMakeFiles/b_plus_tree_print_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  2
@@ -1144,8 +1144,8 @@ clean: test/CMakeFiles/b_plus_tree_print_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/b_plus_tree_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/b_plus_tree_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/b_plus_tree_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/b_plus_tree_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_test.dir/build.make test/CMakeFiles/b_plus_tree_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/b_plus_tree_test.dir/build.make test/CMakeFiles/b_plus_tree_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  3
@@ -1177,8 +1177,8 @@ clean: test/CMakeFiles/b_plus_tree_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/buffer_pool_manager_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/buffer_pool_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/buffer_pool_manager_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/buffer_pool_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/buffer_pool_manager_test.dir/build.make test/CMakeFiles/buffer_pool_manager_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/buffer_pool_manager_test.dir/build.make test/CMakeFiles/buffer_pool_manager_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  4
@@ -1209,19 +1209,19 @@ clean: test/CMakeFiles/buffer_pool_manager_test.dir/clean
 # Target rules for target test/CMakeFiles/check.dir
 
 # All Build rule for target.
-test/CMakeFiles/check.dir/all: test/CMakeFiles/b_plus_tree_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/b_plus_tree_concurrent_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/extendible_hash_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/lru_replacer_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/rwmutex_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/lock_manager_test.dir/all
-test/CMakeFiles/check.dir/all: test/CMakeFiles/buffer_pool_manager_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/log_manager_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/tuple_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/header_page_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/b_plus_tree_print_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/b_plus_tree_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/b_plus_tree_concurrent_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/lock_manager_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/buffer_pool_manager_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/extendible_hash_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/virtual_table_test.dir/all
 test/CMakeFiles/check.dir/all: test/CMakeFiles/type_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/lru_replacer_test.dir/all
+test/CMakeFiles/check.dir/all: test/CMakeFiles/rwmutex_test.dir/all
 	$(MAKE) -f test/CMakeFiles/check.dir/build.make test/CMakeFiles/check.dir/depend
 	$(MAKE) -f test/CMakeFiles/check.dir/build.make test/CMakeFiles/check.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles 
@@ -1253,8 +1253,8 @@ clean: test/CMakeFiles/check.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/extendible_hash_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/extendible_hash_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/extendible_hash_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/extendible_hash_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/extendible_hash_test.dir/build.make test/CMakeFiles/extendible_hash_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/extendible_hash_test.dir/build.make test/CMakeFiles/extendible_hash_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  5
@@ -1317,8 +1317,8 @@ clean: test/CMakeFiles/gtest.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/header_page_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/header_page_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/header_page_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/header_page_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/header_page_test.dir/build.make test/CMakeFiles/header_page_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/header_page_test.dir/build.make test/CMakeFiles/header_page_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  8
@@ -1350,8 +1350,8 @@ clean: test/CMakeFiles/header_page_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/lock_manager_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/lock_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/lock_manager_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/lock_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/lock_manager_test.dir/build.make test/CMakeFiles/lock_manager_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/lock_manager_test.dir/build.make test/CMakeFiles/lock_manager_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  9
@@ -1383,8 +1383,8 @@ clean: test/CMakeFiles/lock_manager_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/log_manager_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/log_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/log_manager_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/log_manager_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/log_manager_test.dir/build.make test/CMakeFiles/log_manager_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/log_manager_test.dir/build.make test/CMakeFiles/log_manager_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  10
@@ -1416,8 +1416,8 @@ clean: test/CMakeFiles/log_manager_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/lru_replacer_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/lru_replacer_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/lru_replacer_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/lru_replacer_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/lru_replacer_test.dir/build.make test/CMakeFiles/lru_replacer_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/lru_replacer_test.dir/build.make test/CMakeFiles/lru_replacer_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  11
@@ -1449,8 +1449,8 @@ clean: test/CMakeFiles/lru_replacer_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/rwmutex_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/rwmutex_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/rwmutex_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/rwmutex_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/rwmutex_test.dir/build.make test/CMakeFiles/rwmutex_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/rwmutex_test.dir/build.make test/CMakeFiles/rwmutex_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  12
@@ -1482,8 +1482,8 @@ clean: test/CMakeFiles/rwmutex_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/tuple_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/tuple_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/tuple_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/tuple_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/tuple_test.dir/build.make test/CMakeFiles/tuple_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/tuple_test.dir/build.make test/CMakeFiles/tuple_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  15
@@ -1515,8 +1515,8 @@ clean: test/CMakeFiles/tuple_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/type_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/type_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/type_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/type_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/type_test.dir/build.make test/CMakeFiles/type_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/type_test.dir/build.make test/CMakeFiles/type_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  16
@@ -1548,8 +1548,8 @@ clean: test/CMakeFiles/type_test.dir/clean
 
 # All Build rule for target.
 test/CMakeFiles/virtual_table_test.dir/all: src/CMakeFiles/sqlite3.dir/all
-test/CMakeFiles/virtual_table_test.dir/all: test/CMakeFiles/gtest.dir/all
 test/CMakeFiles/virtual_table_test.dir/all: src/CMakeFiles/vtable.dir/all
+test/CMakeFiles/virtual_table_test.dir/all: test/CMakeFiles/gtest.dir/all
 	$(MAKE) -f test/CMakeFiles/virtual_table_test.dir/build.make test/CMakeFiles/virtual_table_test.dir/depend
 	$(MAKE) -f test/CMakeFiles/virtual_table_test.dir/build.make test/CMakeFiles/virtual_table_test.dir/build
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/vagrant/learning/2017cmu15-445/build/CMakeFiles  17
