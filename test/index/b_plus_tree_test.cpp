@@ -21,7 +21,7 @@ TEST(BPlusTreeTests, ScaleTest) {
   GenericComparator<8> comparator(key_schema);
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManager(30, disk_manager);
+  BufferPoolManager *bpm = new BufferPoolManager(8, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm,
                                                            comparator);
@@ -44,8 +44,10 @@ TEST(BPlusTreeTests, ScaleTest) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set((int32_t)(key >> 32), value);
     index_key.SetFromInteger(key);
+//	std::cout << "insert------------------" << key << std::endl;
     tree.Insert(index_key, rid, transaction);
   }
+
 //  ASSERT_TRUE(tree.Check(true));
   std::vector<RID> rids;
   for (auto key : keys) {
@@ -75,8 +77,15 @@ TEST(BPlusTreeTests, ScaleTest) {
   // std::random_shuffle(remove_keys.begin(), remove_keys.end());
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
+//	std::cout << "remove------------------" << key << std::endl;
     tree.Remove(index_key, transaction);
+//  for (auto iterator = tree.Begin(); iterator.isEnd() == false;
+ //      ++iterator) {
+//	  std::cout << (*iterator).first << std::endl;
+ // }
+ 
   }
+
 //  ASSERT_TRUE(tree.Check(true));
   start_key = 9900;
   current_key = start_key;

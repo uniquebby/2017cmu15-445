@@ -200,16 +200,30 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(
   auto size = GetSize();
   assert(size + recp_size <= recipient->GetMaxSize()); 	
   //a. move to recipient.(set chlidrens' parent id)
+//  std::cout << "before moveallto: ===================" << std::endl;
+//  std::cout << ToString(true) << std::endl;
+//  std::cout << recipient->ToString(true) << std::endl;
   for (int i = 0; i < size; ++i) {
+//	std::cout << "key=" << array[i].first << " value="
+//	          << array[i].second << std::endl;
     recipient->array[recp_size+i] = array[i];    
+ //   std::cout << "in  moveallto: ==================" << std::endl;
+  //  std::cout << ToString(true) << std::endl;
+   // std::cout << recipient->ToString(true) << std::endl;
+ 
     recipient->IncreaseSize(1);
 	auto page = buffer_pool_manager->FetchPage(array[i].second);
 	assert(page != nullptr);
 	BPlusTreePage *child_page 
 	    = reinterpret_cast<BPlusTreePage*>(page->GetData());
+//    std::cout << ToString(true) << std::endl;
     child_page->SetParentPageId(recipient->GetPageId());    
 	buffer_pool_manager->UnpinPage(child_page->GetPageId(), true);
   }
+//  std::cout << "after  moveallto: ==================" << std::endl;
+//  std::cout << ToString(true) << std::endl;
+//  std::cout << recipient->ToString(true) << std::endl;
+ 
   //b. update parent
   buffer_pool_manager->UnpinPage(GetPageId(), true); 
   buffer_pool_manager->UnpinPage(recipient->GetPageId(), true); 

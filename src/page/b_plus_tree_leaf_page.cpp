@@ -119,7 +119,7 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveHalfTo(
     __attribute__((unused)) BufferPoolManager *buffer_pool_manager) {
   assert(recipient != nullptr);
   int total = GetSize();
-  std::cout << total << std::endl;
+//  std::cout << total << std::endl;
   assert(total == GetMaxSize()+1);
   int index = total/2;
   for (int i = index; i < total; ++i) {

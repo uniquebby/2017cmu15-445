@@ -13,7 +13,7 @@ TEST(BufferPoolManagerTest, SampleTest) {
   page_id_t temp_page_id;
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager bpm(10, disk_manager);
+  BufferPoolManager bpm(8, disk_manager);
 
   auto page_zero = bpm.NewPage(temp_page_id);
   EXPECT_NE(nullptr, page_zero);
@@ -43,6 +43,7 @@ TEST(BufferPoolManagerTest, SampleTest) {
   }
   //fetch the unpined page that be replaced again
   for (int i = 0; i < 5; ++i) {
+    EXPECT_EQ(i, bpm.FetchPage(i)->GetPageId());
     EXPECT_EQ(i, bpm.FetchPage(i)->GetPageId());
   }
   // fetch page one again

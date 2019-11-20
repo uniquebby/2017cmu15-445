@@ -405,6 +405,7 @@ INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) {
 INDEX_TEMPLATE_ARGUMENTS
 B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key,
 	bool leftMost) {
+//  std::cout << "FindLeafPage:  " << key << std::endl;
   if (IsEmpty()) return nullptr;
   auto page = buffer_pool_manager_->FetchPage(root_page_id_);
   assert(page != nullptr);
@@ -413,7 +414,7 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key,
   for (auto cur_page_id = root_page_id_; !cur_page->IsLeafPage();) {
 	B_PLUS_TREE_INTERNAL_PAGE *cur_internal_page = 
 	  static_cast<B_PLUS_TREE_INTERNAL_PAGE*>(cur_page);
-	    std::cout << "FindLeafPage: " <<  cur_internal_page->ToString(true) << std::endl;
+//	    std::cout << "FindLeafPage: " <<  cur_internal_page->ToString(true) << std::endl;
 	if (leftMost) 
 	  cur_page_id = cur_internal_page->ValueAt(0);
 	else 
@@ -425,7 +426,7 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key,
 	//	std::cout << "FindLeafPage: cur_page_id=" << cur_page_id << std::endl;
   }
   auto res = static_cast<B_PLUS_TREE_LEAF_PAGE_TYPE*>(cur_page);
-  std::cout << "FindLeafPage: " <<  res->ToString(true) << std::endl;
+//  std::cout << "FindLeafPage: " <<  res->ToString(true) << std::endl;
   return res;
 }
 
