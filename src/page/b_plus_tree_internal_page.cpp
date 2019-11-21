@@ -225,8 +225,8 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(
 //  std::cout << recipient->ToString(true) << std::endl;
  
   //b. update parent
-  buffer_pool_manager->UnpinPage(GetPageId(), true); 
-  buffer_pool_manager->UnpinPage(recipient->GetPageId(), true); 
+////  buffer_pool_manager->UnpinPage(GetPageId(), true); 
+////  buffer_pool_manager->UnpinPage(recipient->GetPageId(), true); 
 }
 
 INDEX_TEMPLATE_ARGUMENTS

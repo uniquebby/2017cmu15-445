@@ -51,9 +51,7 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
   lock_guard<mutex> lck(latch_);
   Page *res;
   if (page_table_->Find(page_id, res)) {
-    res->WLatch();
     res->pin_count_++;
-    res->WUnlatch();
     replacer_->Erase(res);
 //    std::cout << "FetchPage: page_id=" << res->GetPageId() 
 //              << " pin_count= " << res->pin_count_ << std::endl;
@@ -75,12 +73,10 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
     if (res->is_dirty_) 
       disk_manager_->WritePage(res->page_id_, res->data_);
   }  
-  res->WLatch();
   res->pin_count_ = 1;
   res->page_id_ = page_id;
   disk_manager_->ReadPage(page_id, res->data_);
 //  std::cout << "read page id" << std::endl;
-  res->WUnlatch();
   page_table_->Insert(page_id, res);
 
 //  std::cout << "FetchPage: page_id=" << res->GetPageId() 
@@ -103,16 +99,13 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
 //	          << page_id << " id_dirty= "
  //             << is_dirty << " pin_count=" << pin_count 
 //			  << " p->is_dirty_=" << p->is_dirty_ << std::endl;
+    assert(pin_count > 0);
     if (pin_count > 0) {
-      p->WLatch();
       --p->pin_count_; 
 	  if (is_dirty)
         p->is_dirty_ = is_dirty;
-      p->WUnlatch();
 
-      p->RLatch();
       pin_count = p->pin_count_;
-      p->RUnlatch();
  //     std::cout << "aftre UnpinPage : " << "page_id = " 
 //	            << page_id << " id_dirty= "
  //               << is_dirty << " pin_count=" << pin_count 
@@ -154,18 +147,14 @@ bool BufferPoolManager::DeletePage(page_id_t page_id) {
   lock_guard<mutex> lck(latch_);
   Page *p;
   if (page_table_->Find(page_id, p)) {
-    p->RLatch();
     auto pin_count = p->pin_count_;
-    p->RUnlatch();
     if (pin_count != 0) return false;
 
     page_table_->Remove(page_id);
 	//bug: forget to erase page from lru replacer.
 	replacer_->Erase(p);
-    p->WLatch();
     p->pin_count_ = 0;
     p->is_dirty_ = false;
-    p->WUnlatch();
     free_list_->push_back(p);
     disk_manager_->DeallocatePage(page_id);
     return true;
@@ -199,10 +188,8 @@ Page *BufferPoolManager::NewPage(page_id_t &page_id) {
 	if (p->is_dirty_) 
       disk_manager_->WritePage(p->page_id_, p->data_);
   }
-  p->WLatch();
   p->page_id_ = page_id;
   p->pin_count_++;
-  p->WUnlatch();
   //zero out memory.
   p->ResetMemory();
   //insert to hash table.
