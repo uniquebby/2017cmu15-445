@@ -316,6 +316,7 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyFirstFrom(
   B_PLUS_TREE_INTERNAL_PAGE *parent = 
        reinterpret_cast<B_PLUS_TREE_INTERNAL_PAGE*>(page->GetData());
   parent->SetKeyAt(parent_index, pair.first); 
+  buffer_pool_manager->UnpinPage(parent->GetPageId(), true);
 }
 
 /*****************************************************************************
