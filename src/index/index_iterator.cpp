@@ -18,7 +18,7 @@ INDEXITERATOR_TYPE::IndexIterator(int index,
     : index_(index), item_(item), buffer_pool_manager_(bm) {
   cur_page_ = bm->FetchPage(item->GetPageId());	
   bm->UnpinPage(item->GetPageId(), false);
-  cur_page_->RLatch();
+//  cur_page_->RLatch();
 }
 
 INDEX_TEMPLATE_ARGUMENTS

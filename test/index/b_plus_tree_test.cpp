@@ -21,7 +21,7 @@ TEST(BPlusTreeTests, ScaleTest) {
   GenericComparator<8> comparator(key_schema);
 
   DiskManager *disk_manager = new DiskManager("test.db");
-  BufferPoolManager *bpm = new BufferPoolManager(8, disk_manager);
+  BufferPoolManager *bpm = new BufferPoolManager(100, disk_manager);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm,
                                                            comparator);
@@ -34,7 +34,7 @@ TEST(BPlusTreeTests, ScaleTest) {
   auto header_page = bpm->NewPage(page_id);
   (void)header_page;
  // tree.openCheck = false;
-  int64_t scale = 10000;
+  int64_t scale = 10;
   std::vector<int64_t> keys;
   for (int64_t key = 1; key < scale; key++) {
     keys.push_back(key);
@@ -44,7 +44,7 @@ TEST(BPlusTreeTests, ScaleTest) {
     int64_t value = key & 0xFFFFFFFF;
     rid.Set((int32_t)(key >> 32), value);
     index_key.SetFromInteger(key);
-//	std::cout << "insert------------------" << key << std::endl;
+	std::cout << "insert------------------" << key << std::endl;
     tree.Insert(index_key, rid, transaction);
   }
 
@@ -53,12 +53,13 @@ TEST(BPlusTreeTests, ScaleTest) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
     EXPECT_EQ(rids[0].GetSlotNum(), value);
   }
+  std::cout << "------------------" << std::endl;
 
   int64_t start_key = 1;
   int64_t current_key = start_key;
@@ -68,8 +69,9 @@ TEST(BPlusTreeTests, ScaleTest) {
     current_key = current_key + 1;
   }
   EXPECT_EQ(current_key, keys.size() + 1);
+  std::cout << "------------------" << std::endl;
 
-  int64_t remove_scale = 9900;
+  int64_t remove_scale = 9;
   std::vector<int64_t> remove_keys;
   for (int64_t key = 1; key < remove_scale; key++) {
     remove_keys.push_back(key);
@@ -77,7 +79,9 @@ TEST(BPlusTreeTests, ScaleTest) {
   // std::random_shuffle(remove_keys.begin(), remove_keys.end());
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
-//	std::cout << "remove------------------" << key << std::endl;
+	std::cout << "remove------------------" << key << std::endl;
+	if (key == 391)
+	  std::cout << "remove------------------" << key << std::endl;
     tree.Remove(index_key, transaction);
 //  for (auto iterator = tree.Begin(); iterator.isEnd() == false;
  //      ++iterator) {
@@ -87,7 +91,7 @@ TEST(BPlusTreeTests, ScaleTest) {
   }
 
 //  ASSERT_TRUE(tree.Check(true));
-  start_key = 9900;
+  start_key = 9;
   current_key = start_key;
   int64_t size = 0;
   index_key.SetFromInteger(start_key);
@@ -97,7 +101,7 @@ TEST(BPlusTreeTests, ScaleTest) {
     size = size + 1;
   }
 
-  EXPECT_EQ(size, 100);
+  EXPECT_EQ(size, 1);
 //  ASSERT_TRUE(tree.Check(true));
   bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete transaction;
@@ -145,7 +149,7 @@ TEST(BPlusTreeTests, RandomTest) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -170,8 +174,14 @@ TEST(BPlusTreeTests, RandomTest) {
   std::random_shuffle(remove_keys.begin(), remove_keys.end());
   for (auto key : remove_keys) {
     index_key.SetFromInteger(key);
+	std::cout << "remove" << key << std::endl;
     tree.Remove(index_key, transaction);
+//    for (auto iterator = tree.Begin(); iterator.isEnd() == false;
+//        ++iterator) {
+//	    std::cout << (*iterator).first << std::endl;
+//   }
   }
+	std::cout << "remove------------------done" << std::endl;
 //  ASSERT_TRUE(tree.Check(true));
   start_key = 9900;
   current_key = start_key;
@@ -183,6 +193,7 @@ TEST(BPlusTreeTests, RandomTest) {
     size = size + 1;
   }
 
+  std::cout << "index------------------done" << std::endl;
   EXPECT_EQ(size, 100);
 //  ASSERT_TRUE(tree.Check(true));
   bpm->UnpinPage(HEADER_PAGE_ID, true);

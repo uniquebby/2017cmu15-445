@@ -26,8 +26,9 @@ public:
   }
 
   IndexIterator &operator++() {
+    //std::cout << "index=" << index_ << " GetSize()= " << item_->GetSize() << std::endl;
     if (index_ == item_->GetSize()-1) {
-//	  std::cout << "indexIterator: cur_page_id= " << cur_page_->GetPageId() << std::endl;
+	  std::cout << "prev_page_id= " << cur_page_->GetPageId() << std::endl;
 	  auto next_page_id = item_->GetNextPageId();
 	  UnlockAndUnPin();
 	  if (next_page_id == INVALID_PAGE_ID) 

@@ -233,7 +233,7 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf(
   auto page = buffer_pool_manager->FetchPage(GetParentPageId());
   B_PLUS_TREE_INTERNAL_PAGE *parent = 
       reinterpret_cast<B_PLUS_TREE_INTERNAL_PAGE*>(page->GetData());
-  parent->SetKeyAt(parent->ValueIndex(GetPageId()), pair.first);
+  parent->SetKeyAt(parent->ValueIndex(GetPageId()), array[0].first);
   buffer_pool_manager->UnpinPage(parent->GetPageId(), true);
 }
 

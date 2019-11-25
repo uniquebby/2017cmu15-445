@@ -21,6 +21,7 @@
 namespace cmudb {
 
 #define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
+
 // Main class providing the API for the Interactive B+ Tree.
 INDEX_TEMPLATE_ARGUMENTS
 class BPlusTree {
@@ -60,9 +61,30 @@ public:
                       Transaction *transaction = nullptr);
   // expose for test purpose
   B_PLUS_TREE_LEAF_PAGE_TYPE *FindLeafPage(const KeyType &key,
+                                           OpType optype,
+										   Transaction *transaction,
+                                           bool leftMost = false);
+  //reload func for Begin()
+  B_PLUS_TREE_LEAF_PAGE_TYPE *FindLeafPage(const KeyType &key,
                                            bool leftMost = false);
 
 private:
+  B_PLUS_TREE_LEAF_PAGE_TYPE *TraverseTree(const KeyType &key,
+                                           bool leafMost,
+										   OpType optype,
+										   bool is_exclusive,
+										   Transaction *transaction);
+										   
+  BPlusTreePage *FetchPageWithLock(const page_id_t &page_id,
+                                   OpType optype,
+								   bool is_exclusive,
+								   Transaction *transaction);
+
+  void FreePages(bool is_exclusive, Transaction *transaction);
+
+  template <typename N> N *FetchSiblingPage(const page_id_t &page_id,
+                                            Transaction *transaction);
+
   void StartNewTree(const KeyType &key, const ValueType &value);
 
   bool InsertIntoLeaf(const KeyType &key, const ValueType &value,

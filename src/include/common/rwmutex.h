@@ -9,6 +9,7 @@
 #include <climits>
 #include <condition_variable>
 #include <mutex>
+#include <iostream>
 
 namespace cmudb {
 class RWMutex {
@@ -45,11 +46,13 @@ public:
     while (writer_entered_ || reader_count_ == max_readers_)
       reader_.wait(lock);
     reader_count_++;
+//	std::cout << "RLock: ---------------: reader_count= " << reader_count_ << std::endl;
   }
 
   void RUnlock() {
     std::lock_guard<mutex_t> guard(mutex_);
     reader_count_--;
+//	std::cout << "RUnLock: ---------------: reader_count= " << reader_count_ << std::endl;
     if (writer_entered_) {
       if (reader_count_ == 0)
         writer_.notify_one();
