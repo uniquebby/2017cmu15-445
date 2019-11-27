@@ -53,8 +53,8 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
   if (page_table_->Find(page_id, res)) {
     res->pin_count_++;
     replacer_->Erase(res);
-//    std::cout << "FetchPage: page_id=" << res->GetPageId() 
-//              << " pin_count= " << res->pin_count_ << std::endl;
+    std::cout << "FetchPage: page_id=" << res->GetPageId() 
+              << " pin_count= " << res->pin_count_ << std::endl;
     return res;
   }
   if (!free_list_->empty()) {
@@ -79,8 +79,8 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
 //  std::cout << "read page id" << std::endl;
   page_table_->Insert(page_id, res);
 
-//  std::cout << "FetchPage: page_id=" << res->GetPageId() 
-//            << " pin_count= " << res->pin_count_ << std::endl;
+  std::cout << "FetchPage: page_id=" << res->GetPageId() 
+            << " pin_count= " << res->pin_count_ << std::endl;
   return res;
 }
 
@@ -95,10 +95,10 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
   Page *p;
   if(page_table_->Find(page_id, p)) {
     auto pin_count = p->pin_count_;
-//    std::cout << "before UnpinPage : " << "page_id = " 
-//	          << page_id << " id_dirty= "
- //             << is_dirty << " pin_count=" << pin_count 
-//			  << " p->is_dirty_=" << p->is_dirty_ << std::endl;
+    std::cout << "before UnpinPage : " << "page_id = " 
+	          << page_id << " id_dirty= "
+              << is_dirty << " pin_count=" << pin_count 
+			  << " p->is_dirty_=" << p->is_dirty_ << std::endl;
     assert(pin_count > 0);
     if (pin_count > 0) {
       --p->pin_count_; 
@@ -106,10 +106,10 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
         p->is_dirty_ = is_dirty;
 
       pin_count = p->pin_count_;
- //     std::cout << "aftre UnpinPage : " << "page_id = " 
-//	            << page_id << " id_dirty= "
- //               << is_dirty << " pin_count=" << pin_count 
-//			    << " p->is_dirty_=" << p->is_dirty_ << std::endl;
+      std::cout << "aftre UnpinPage : " << "page_id = " 
+	            << page_id << " id_dirty= "
+                << is_dirty << " pin_count=" << pin_count 
+			    << " p->is_dirty_=" << p->is_dirty_ << std::endl;
       if (pin_count <= 0) {
 	    replacer_->Insert(p);
 	  }
@@ -148,16 +148,16 @@ bool BufferPoolManager::DeletePage(page_id_t page_id) {
   Page *p;
   if (page_table_->Find(page_id, p)) {
     auto pin_count = p->pin_count_;
-	assert(pin_count == 0);
+//	assert(pin_count == 0);
     if (pin_count != 0) {
-//	  std::cout << "DeletePage: pin_count = " << pin_count << std::endl;
-	  assert(false);
-	  return false;
+	  std::cout << "DeletePage: " << "page_id= " 
+	            << page_id << " pin_count = " << pin_count << std::endl;
 	}
 
     page_table_->Remove(page_id);
 	//bug: forget to erase page from lru replacer.
 	replacer_->Erase(p);
+    p->ResetMemory();
     p->pin_count_ = 0;
     p->is_dirty_ = false;
     free_list_->push_back(p);

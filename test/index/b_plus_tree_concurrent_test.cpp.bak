@@ -44,6 +44,8 @@ void InsertHelper(BPlusTree<GenericKey<8>, RID, GenericComparator<8>> &tree,
     int64_t value = key & 0xFFFFFFFF;
     rid.Set((int32_t)(key >> 32), value);
     index_key.SetFromInteger(key);
+	std::cout << "InsertHelper: insert################"<< key << " " 
+	          << transaction->GetThreadId() << std::endl;
     tree.Insert(index_key, rid, transaction);
   }
   delete transaction;
@@ -107,6 +109,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm,
                                                            comparator);
@@ -127,7 +130,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -137,8 +140,15 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
   int64_t start_key = 1;
   int64_t current_key = start_key;
   index_key.SetFromInteger(start_key);
+
   for (auto iterator = tree.Begin(index_key); iterator.isEnd() == false;
        ++iterator) {
+	std::cout << "InsertTest1: " << (*iterator).first << std::endl;
+  }
+
+  for (auto iterator = tree.Begin(index_key); iterator.isEnd() == false;
+       ++iterator) {
+	std::cout << "InsertTest1: " << (*iterator).first << std::endl;
     auto location = (*iterator).second;
     EXPECT_EQ(location.GetPageId(), 0);
     EXPECT_EQ(location.GetSlotNum(), current_key);
@@ -151,6 +161,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
 
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }
@@ -161,6 +172,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
   GenericComparator<8> comparator(key_schema);
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<8>, RID, GenericComparator<8>> tree("foo_pk", bpm,
                                                            comparator);
@@ -181,7 +193,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -205,6 +217,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
 
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }

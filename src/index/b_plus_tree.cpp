@@ -37,7 +37,7 @@ INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
                               std::vector<ValueType> &result,
                               Transaction *transaction) {
-  std::cout << "GetValue() " << std::endl;
+  std::cout << "GetValue() "<< transaction->GetThreadId() << std::endl;
   auto leaf_page_ptr = FindLeafPage(key, OpType::SEARCH, transaction, false);  
 //  std::cout << "GetValue: page_id=" << leaf_page_ptr->GetPageId() << std::endl;
   if (leaf_page_ptr == nullptr) return false;
@@ -61,7 +61,7 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value,
                             Transaction *transaction) {
-  std::cout << "Insert() " << std::endl;
+  std::cout << "Insert() "<< transaction->GetThreadId() << std::endl;
   if (IsEmpty()) {
     StartNewTree(key, value);
 	return true;
@@ -105,13 +105,13 @@ void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value) {
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::InsertIntoLeaf(const KeyType &key, const ValueType &value,
                                     Transaction *transaction) {
-  std::cout << "InsertIntoLeaf() " << std::endl;
+  std::cout << "InsertIntoLeaf() " << transaction->GetThreadId()<< std::endl;
   auto leaf_page_ptr = FindLeafPage(key, OpType::INSERT, transaction, false);
   if (leaf_page_ptr == nullptr) return false;
   ValueType v;
   auto is_already_exist = leaf_page_ptr->Lookup(key, v, comparator_);
   if (is_already_exist) {
-    FreePages(true, transaction);
+    FreePages(false, transaction);
 //    buffer_pool_manager_->UnpinPage(leaf_page_ptr->GetPageId(), false);
 	return false;
   }
@@ -145,6 +145,8 @@ template <typename N> N *BPLUSTREE_TYPE::Split(N *node) {
   //2. mova half to newly page
   new_pageN->Init(new_page_id, node->GetParentPageId());
   node->MoveHalfTo(new_pageN, buffer_pool_manager_);
+  std::cout << node->ToString(true) << std::endl;
+  std::cout << new_pageN->ToString(true) << std::endl;
   //3. return 
   return new_pageN;
 }
@@ -164,7 +166,7 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node,
                                       BPlusTreePage *new_node,
                                       Transaction *transaction) {
 
-  std::cout << "InsertIntoParent() " << std::endl;
+  std::cout << "InsertIntoParent() "<< transaction->GetThreadId() << std::endl;
   /* insert into new root */
   if (old_node->IsRootPage()) {
 //    std::cout << "split root..................................." << std::endl;
@@ -222,7 +224,7 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node,
 /////////////////////////////////////////////////////////////////////
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *transaction) {
-  std::cout << "Remove() " << std::endl;
+  std::cout << "Remove() " << transaction->GetThreadId()<< std::endl;
   if (IsEmpty()) return;
   auto leaf_page_ptr = FindLeafPage(key, OpType::DELETE, transaction, false);
   if (leaf_page_ptr == nullptr) return;
@@ -254,7 +256,7 @@ template <typename N>
 bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction) {
   // a. get sibling node
   //case1: node is root page
-  std::cout << "CoalesceOrRedistribute() " << std::endl;
+  std::cout << "CoalesceOrRedistribute() "<< transaction->GetThreadId() << std::endl;
   if (node->IsRootPage())
     return AdjustRoot(node); 
   auto page = buffer_pool_manager_->FetchPage(node->GetParentPageId());
@@ -300,7 +302,7 @@ bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction) {
 	  res = true;
 	}
   }
-  std::cout << "CoalesceOrRedistribute() done" << std::endl;
+  std::cout << "CoalesceOrRedistribute() done" << transaction->GetThreadId()<< std::endl;
   return res;
 }
 
@@ -322,7 +324,7 @@ bool BPLUSTREE_TYPE::Coalesce(
     N *&neighbor_node, N *&node,
     BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> *&parent,
     int index, Transaction *transaction) {
-  std::cout << "Coalesce() " << std::endl;
+  std::cout << "Coalesce() " << transaction->GetThreadId()<< std::endl;
   N *left_node, *right_node;
   if (index != 0) {
     left_node = neighbor_node;
@@ -345,7 +347,7 @@ bool BPLUSTREE_TYPE::Coalesce(
     return CoalesceOrRedistribute(parent, transaction);
   }
 //  buffer_pool_manager_->UnpinPage(parent->GetPageId(), true);
-  std::cout << "Coalesce() done" << std::endl;
+  std::cout << "Coalesce() done" << transaction->GetThreadId()<< std::endl;
   return false;
 }
 
@@ -447,21 +449,66 @@ INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) {
 INDEX_TEMPLATE_ARGUMENTS
 B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key, 
 	OpType optype, Transaction *transaction, bool leftMost) {
-  std::cout << "FindLeafPage() " << std::endl;
+  std::cout << "FindLeafPage() " << transaction->GetThreadId()<< std::endl;
   bool is_read_only = optype == OpType::SEARCH;
   auto leaf_page = TraverseTree(key, leftMost, optype, false, transaction); 
-  if (is_read_only) {
+  bool is_already_exist = false;
+  ValueType v;
+  // case for INSERT operator and key is already exist.
+  if (optype == OpType::INSERT) {
+    is_already_exist = leaf_page->Lookup(key, v, comparator_);
+  }
+  if (is_read_only || is_already_exist) {
     return leaf_page;    
-  } else if (leaf_page->IsSafe(optype)) {//transfor Rlatch to Wlatch
-    auto page = buffer_pool_manager_->FetchPage(leaf_page->GetPageId());
-    FreePages(false, transaction);
+  } else if (leaf_page->IsSafe(optype) && 
+             !leaf_page->IsLeafPage()) {//transfor Rlatch to Wlatch
+    auto page_id = leaf_page->GetPageId();
+    auto page = buffer_pool_manager_->FetchPage(page_id);
+	page->RUnlatch();
+	buffer_pool_manager_->UnpinPage(page_id, false);
+//    FreePages(false, transaction);
 	page->WLatch();
-	transaction->AddIntoPageSet(page);
+	//if leaf_page has been deleted by other thread.
+	if (page->GetPageId() != page_id) {
+      buffer_pool_manager_->FetchPage(page->GetPageId()); //保持pin_count幂等
+	  page->WUnlatch();
+	  page->RLatch();
+      FreePages(false, transaction);
+	  leaf_page = FindLeafPage(key, optype, transaction, leftMost);
+	//leaf_page has been modified by other thread.
+	} else if (!leaf_page->IsSafe(optype)) {
+//	  buffer_pool_manager_->UnpinPage(page_id, false);
+	  page->WUnlatch();
+	  page->RLatch();
+      FreePages(false, transaction);
+	  leaf_page = FindLeafPage(key, optype, transaction, leftMost);
+	} else if (optype == OpType::INSERT) {
+	  //get write latch now, we can unlatch parent page.
+	  auto parent_page_id = leaf_page->GetParentPageId();
+	  auto page_set = transaction->GetPageSet();
+	  auto parent = page_set->back();
+	  page_set->pop_back();
+	  assert(parent_page_id == parent->GetPageId());
+	  parent->RUnlatch();
+	  buffer_pool_manager_->UnpinPage(parent_page_id, false);
+      is_already_exist = leaf_page->Lookup(key, v, comparator_);
+      if (is_already_exist) {
+	    page->WUnlatch();
+	    page->RLatch();
+	  }
+	}
 	return leaf_page;
   } else {
     FreePages(false, transaction);
-    return TraverseTree(key, leftMost, optype, true, transaction);
+    leaf_page = TraverseTree(key, leftMost, optype, true, transaction);
+	if (optype == OpType::INSERT) {
+      is_already_exist = leaf_page->Lookup(key, v, comparator_);
+      if (is_already_exist) {
+        FreePages(true, transaction);
+	  }
+	}
   }
+  return leaf_page;
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -502,13 +549,16 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key,
 INDEX_TEMPLATE_ARGUMENTS
 B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::TraverseTree(const KeyType &key,
 	bool leftMost,OpType optype, bool is_exclusive, Transaction *transaction) {
-  std::cout << "TraverseTree():  " << key << std::endl;
-  if (IsEmpty()) return nullptr;
-  auto cur_page = FetchPageWithLock(root_page_id_, optype, is_exclusive, transaction);
+  std::cout << "TraverseTree():  " << key << "" << transaction->GetThreadId()<< std::endl;
+  BPlusTreePage *cur_page = nullptr;
+  while (cur_page == nullptr) {
+    if (IsEmpty()) return nullptr;
+    cur_page = FetchPageWithLock(root_page_id_, optype, is_exclusive, transaction);
+  }
   for (auto cur_page_id = root_page_id_; !cur_page->IsLeafPage();) {
 	B_PLUS_TREE_INTERNAL_PAGE *cur_internal_page = 
 	  static_cast<B_PLUS_TREE_INTERNAL_PAGE*>(cur_page);
-//	std::cout << "TraverseTree: " <<  cur_internal_page->ToString(true) << std::endl;
+	std::cout << "TraverseTree: " <<  cur_internal_page->ToString(true) << std::endl;
 	if (leftMost) 
 	  cur_page_id = cur_internal_page->ValueAt(0);
 	else 
@@ -519,8 +569,9 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::TraverseTree(const KeyType &key,
 	//	std::cout << "FindLeafPage: cur_page_id=" << cur_page_id << std::endl;
   }
   auto res = static_cast<B_PLUS_TREE_LEAF_PAGE_TYPE*>(cur_page);
-//  std::cout << "FindLeafPage: " <<  res->ToString(true) << std::endl;
+  std::cout << "FindLeafPage: " <<  res->ToString(true) << std::endl;
   return res;
+  std::cout << "TraverseTree():  " << key << "done " << transaction->GetThreadId()<< std::endl;
 }
 
 /*
@@ -529,18 +580,30 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::TraverseTree(const KeyType &key,
 INDEX_TEMPLATE_ARGUMENTS
 BPlusTreePage *BPLUSTREE_TYPE::FetchPageWithLock(const page_id_t &page_id, OpType optype,
 	bool is_exclusive, Transaction *transaction) {
-  std::cout << "FetchPageWithLock:  " << page_id << std::endl;
+  std::cout << "FetchPageWithLock:  " << page_id << " " << transaction->GetThreadId()<< std::endl;
   assert(transaction != nullptr);
   auto page = buffer_pool_manager_->FetchPage(page_id); 
   assert(page != nullptr);
   if (is_exclusive) {
     page->WLatch();
+    if (page->GetPageId() != page_id) {
+      page->WUnlatch();
+	  return nullptr; 
+	}
   } else {
     page->RLatch();
+    if (page->GetPageId() != page_id) { 
+      page->RUnlatch();
+	  return nullptr; 
+	}
   }
+  //if page has been deleted by other thread, return nullptr.
   BPlusTreePage *cur_page = 
 	reinterpret_cast<BPlusTreePage*>(page->GetData());
-  if (!is_exclusive || cur_page->IsSafe(optype)) {
+  //case Insert is complex, so deal with it specially.
+  if (!is_exclusive ||
+     (cur_page->IsSafe(optype) && 
+	 (optype == OpType::DELETE || !cur_page->IsLeafPage()))) {
     FreePages(is_exclusive, transaction); 
   }
   transaction->AddIntoPageSet(page);
@@ -566,15 +629,16 @@ template <typename N> N *BPLUSTREE_TYPE::FetchSiblingPage(const page_id_t &page_
  */
 INDEX_TEMPLATE_ARGUMENTS
 void BPLUSTREE_TYPE::FreePages(bool is_exclusive, Transaction *transaction) {
-  std::cout << "FreePages:  " << std::endl;
+  std::cout << "FreePages:  " << transaction->GetThreadId()<< std::endl;
   assert(transaction != nullptr);
   for (auto page : *transaction->GetPageSet()) {
+    auto page_id = page->GetPageId();
     if (is_exclusive) {
 	  page->WUnlatch();
 	} else {
 	  page->RUnlatch();
 	}
-    auto page_id = page->GetPageId();
+    std::cout << "FreePages: WUnlatch" << page_id << transaction->GetThreadId()<< std::endl;
 	buffer_pool_manager_->UnpinPage(page_id, is_exclusive);
 	if (transaction->GetDeletedPageSet()->find(page_id) !=
 	    transaction->GetDeletedPageSet()->end()) {
@@ -584,7 +648,7 @@ void BPLUSTREE_TYPE::FreePages(bool is_exclusive, Transaction *transaction) {
   }
   assert(transaction->GetDeletedPageSet()->empty());
   transaction->GetPageSet()->clear();
-  std::cout << "FreePages:  done" << std::endl;
+  std::cout << "FreePages:  done" << transaction->GetThreadId()<< std::endl;
 }
 /*
  * Update/Insert root page id in header page(where page_id = 0, header_page is

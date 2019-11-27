@@ -173,12 +173,13 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
   LaunchParallelTest(4, InsertHelper, std::ref(tree), keys);
 
   //cout<<tree.ToString()<<endl;
+  Transaction *transaction = new Transaction(0);
   std::vector<RID> rids;
   GenericKey<16> index_key;
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -203,6 +204,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest1) {
   delete key_schema;
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }
@@ -213,6 +215,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
   GenericComparator<16> comparator(key_schema);
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<16>, RID, GenericComparator<16>> tree("foo_pk", bpm,
                                                            comparator);
@@ -233,7 +236,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -258,6 +261,7 @@ TEST(BPlusTreeConcurrentTest, InsertTest2) {
   delete key_schema;
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }
@@ -269,6 +273,7 @@ TEST(BPlusTreeConcurrentTest, InsertAndGetTest) {
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<16>, RID, GenericComparator<16>> tree("foo_pk", bpm,
                                                              comparator);
@@ -290,7 +295,7 @@ TEST(BPlusTreeConcurrentTest, InsertAndGetTest) {
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
-    tree.GetValue(index_key, rids);
+    tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
@@ -302,6 +307,7 @@ TEST(BPlusTreeConcurrentTest, InsertAndGetTest) {
   index_key.SetFromInteger(start_key);
   for (auto iterator = tree.Begin(index_key); iterator.isEnd() == false;
        ++iterator) {
+	std::cout << (*iterator).first << std::endl;
     auto location = (*iterator).second;
     EXPECT_EQ(location.GetPageId(), 0);
     EXPECT_EQ(location.GetSlotNum(), current_key);
@@ -315,6 +321,7 @@ TEST(BPlusTreeConcurrentTest, InsertAndGetTest) {
   delete key_schema;
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }
@@ -669,6 +676,7 @@ TEST(BPlusTreeConcurrentTest, MixTest2) {
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<16>, RID, GenericComparator<16>> tree("foo_pk", bpm,
                                                            comparator);
@@ -702,7 +710,7 @@ TEST(BPlusTreeConcurrentTest, MixTest2) {
   for (auto key : all_deleted) {
     rids.clear();
     index_key.SetFromInteger(key);
-    auto res = tree.GetValue(index_key, rids);
+    auto res = tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(false, res);
   }
 
@@ -724,6 +732,7 @@ TEST(BPlusTreeConcurrentTest, MixTest2) {
   delete key_schema;
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }
@@ -734,6 +743,7 @@ TEST(BPlusTreeConcurrentTest, MixTest3) {
 
   DiskManager *disk_manager = new DiskManager("test.db");
   BufferPoolManager *bpm = new BufferPoolManager(50, disk_manager);
+  Transaction *transaction = new Transaction(0);
   // create b+ tree
   BPlusTree<GenericKey<16>, RID, GenericComparator<16>> tree("foo_pk", bpm,
                                                              comparator);
@@ -795,13 +805,13 @@ TEST(BPlusTreeConcurrentTest, MixTest3) {
   for (auto key : deleted1) {
     rids.clear();
     index_key.SetFromInteger(key);
-    auto res = tree.GetValue(index_key, rids);
+    auto res = tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(false, res);
   }
   for (auto key : deleted2) {
     rids.clear();
     index_key.SetFromInteger(key);
-    auto res = tree.GetValue(index_key, rids);
+    auto res = tree.GetValue(index_key, rids, transaction);
     EXPECT_EQ(false, res);
   }
 
@@ -819,6 +829,7 @@ TEST(BPlusTreeConcurrentTest, MixTest3) {
   delete key_schema;
   delete disk_manager;
   delete bpm;
+  delete transaction;
   remove("test.db");
   remove("test.log");
 }

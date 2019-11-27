@@ -27,18 +27,22 @@ public:
   RWMutex &operator=(const RWMutex &) = delete;
 
   void WLock() {
+	std::cout << "WLock: ---------------: reader_count= " << reader_count_ << std::endl;
     std::unique_lock<mutex_t> lock(mutex_);
     while (writer_entered_)
       reader_.wait(lock);
     writer_entered_ = true;
     while (reader_count_ > 0)
       writer_.wait(lock);
+	std::cout << "WLock: ---------------: done " << reader_count_ << std::endl;
   }
 
   void WUnlock() {
+	std::cout << "WUnLock: ---------------: reader_count= " << reader_count_ << std::endl;
     std::lock_guard<mutex_t> guard(mutex_);
     writer_entered_ = false;
     reader_.notify_all();
+	std::cout << "WUnLock: ---------------: done " << reader_count_ << std::endl;
   }
 
   void RLock() {
@@ -46,13 +50,13 @@ public:
     while (writer_entered_ || reader_count_ == max_readers_)
       reader_.wait(lock);
     reader_count_++;
-//	std::cout << "RLock: ---------------: reader_count= " << reader_count_ << std::endl;
+	std::cout << "RLock: ---------------: reader_count= " << reader_count_ << std::endl;
   }
 
   void RUnlock() {
     std::lock_guard<mutex_t> guard(mutex_);
     reader_count_--;
-//	std::cout << "RUnLock: ---------------: reader_count= " << reader_count_ << std::endl;
+	std::cout << "RUnLock: ---------------: reader_count= " << reader_count_ << std::endl;
     if (writer_entered_) {
       if (reader_count_ == 0)
         writer_.notify_one();
