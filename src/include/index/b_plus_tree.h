@@ -63,7 +63,8 @@ public:
   B_PLUS_TREE_LEAF_PAGE_TYPE *FindLeafPage(const KeyType &key,
                                            OpType optype,
 										   Transaction *transaction,
-                                           bool leftMost = false);
+                                           bool leftMost = false,
+										   bool *is_exclusive = nullptr);
   //reload func for Begin()
   B_PLUS_TREE_LEAF_PAGE_TYPE *FindLeafPage(const KeyType &key,
                                            bool leftMost = false);
